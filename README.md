@@ -168,3 +168,4 @@ Call the GetItems function again to see if the new item is successfully deleted.
 ### 11. Delete all the resources
 
 ![11-1](/images/11-1.png)
+![11-2](/images/11-2.png)
