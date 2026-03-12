@@ -1,0 +1,15 @@
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Editors ---
+.vscode/
+.idea/
+.trash/
+
+# --- Temporary files ---
+*.log
+*.tmp
+
+/images-old
