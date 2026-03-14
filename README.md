@@ -12,7 +12,7 @@ A Cosmos DB is created and an Azure Function App is used to interact with the da
 
 The Azure Key Vault is used for storing the access keys to the Cosmos DB and Function App.
 
-## Security Architecture
+## Security Architecture using Key Vault
 
 When trying to call the Function App
 
@@ -31,6 +31,8 @@ When trying to call the Function App
 ### 2. Create Virtual Machine and Save the ssh key
 
 Create a virtual machine
+
+Save the key pair file in `~/.ssh` and use `chmod 400 cst8911-vm_key.pem` to secure the key. This removes all access permissions so that only the owner can read it.
 
 ![2-1](/images/2-1.png)
 ![2-2](/images/2-2.png)
@@ -73,42 +75,47 @@ The Consumption plan is a serverless option and charges only when the function i
 ![5-1](/images/5-1.png)
 ![5-2](/images/5-2.png)
 
+Selecting the Azure role-based access control can grant access by using the RBAC. 
+
 Azure Key Vault is used to store sensitive configuration values such as API access keys. It prevents the secrets from being stored directly in code or configuration files.
 
 The standard pricing tier is the most cost-effective choice of the Key Vault.
 
 ### 6. Store Keys in Key Vault
 
-First grant user the Key Fault Secret Officer Role in the Access control(IAM) of the Key Vault.
+First grant user the Key Vault Secret Officer Role in the Access control(IAM) of the Key Vault.
 
 ![6-1](/images/6-1.png)
 
-Store Cosmos DB Primary Key in Key Vault.
+**Store Cosmos DB Primary Key in Key Vault.**
 
-Generate a Secret in Key Fault named `cosmos-key` with the Cosmos DB key as value.
+Generate a Secret in Key Vault named `cosmos-key` with the Cosmos DB key as value.
 
 ![6-2](/images/6-2.png)
 ![6-3](/images/6-3.png)
 
-Add function access key to Key Vault.
+**Add function access key to Key Vault.**
 
-Generate a Secret in Key Fault named `function-default-key` with the default function app key as value
+Generate a Secret in Key Vault named `function-default-key` with the default function app key as value
 
 ![6-4](/images/6-4.png)
 ![6-5](/images/6-5.png)
 
-Overview
+**Final Overview**
 
 ![6-6](/images/6-6.png)
 
 ### 7. Give Function App access to only this secret
 
-In the Access Control IAM, assign Key Vault Secrets User role to the Function App's Managed Identity.
+Turn on the System-Assigned Managed Identity.
 
 ![7-1](/images/7-1.png)
+
+Then, in the Access Control IAM, assign Key Vault Secrets User role to the Function App's Managed Identity.
+
 ![7-2](/images/7-2.png)
 
-The Function App uses the System-Assigned Managed Identity to allow it be authorized by Azure manages services. It improves the security by eliminating the use of secret values can reduce risk of leaks.
+The Function App uses the System-Assigned Managed Identity to allow it be authorized by Azure manages services. It improves the security by eliminating the direct storing of secret values in application services and thus reduces risk of leaks.
 
 The Function App's System-Assigned Managed Identity is granted the Key Vault Secrets User role, allowing it to only read and write data according to the least-privilege principle.
 
@@ -134,11 +141,11 @@ Store all the secret configuration strings in the App Environments to make sure 
 
 Use Microsoft Copilot to generate 3 HTTP-triggered Functions, with Authorization level Function:
 
-| Function name       | API end            | What it does                 |
-| ------------------- | ------------------ | ---------------------------- |
-| GetItems (GET)      | GET /items         | Get all items from Cosmos DB |
-| AddItem (POST)      | POST /items        | Insert a new item to DB      |
-| DeleteItem (DELETE) | DELETE /items/{id} | Remove an item by ID         |
+| Function name       | API end            | What it does                      |
+| ------------------- | ------------------ | --------------------------------- |
+| GetItems (GET)      | GET /items         | Get all items from `midterm-db`   |
+| AddItem (POST)      | POST /items        | Insert a new item to `midterm-db` |
+| DeleteItem (DELETE) | DELETE /items/{id} | Remove an item by ID              |
 
 The API communicates with Cosmos DB using Node.js. An API key is required for accessing Authorization level Function to ensure that only requests with a valid function access key can touch the API endpoints.
 
@@ -185,7 +192,7 @@ Use VSCode to SSH into the VM created in the previous steps.
 
 Command Palette --> Connect to Host --> Add New SSH Host --> `ssh -i ~/.ssh/cst8911-vm_key.pem azureuser@4.206.218.39` --> save it to the ssh config file and change the `Host` to `cst8911midterm-vm`
 
-Then it will show when you open the Command Palette and select Connect to Host --> click to connect.
+Then the new Host will show up when opening the Command Palette again. Select Connect to Host --> click to connect.
 
 ![10-1](/images/10-1.png)
 ![10-2](/images/10-2.png)
